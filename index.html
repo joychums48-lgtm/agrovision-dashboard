@@ -1,33 +1,165 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fun Facts</title>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; background-color: #f4f4f4; }
-        #fact { margin: 20px; font-size: 24px; }
-        button { padding: 10px 20px; font-size: 16px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgroVision Smart Farming Dashboard</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: Arial, sans-serif; background: #1a2e1a; color: gold; min-height: 100vh; }
+  header { text-align: center; padding: 30px 20px 10px; animation: glow 2s infinite alternate; }
+  @keyframes glow {
+    from { text-shadow: 0 0 10px gold; }
+    to { text-shadow: 0 0 30px gold, 0 0 60px #ffd700; }
+  }
+  header h1 { font-size: 2rem; }
+  header p { color: #a8d5a2; margin-top: 8px; }
+  .grid { display: flex; flex-wrap: wrap; justify-content: center; padding: 20px; gap: 20px; }
+  .card {
+    background: #2a3d2a; border-radius: 12px; padding: 20px;
+    box-shadow: 0 0 20px rgba(255,215,0,0.3); width: 300px;
+    transition: transform 0.3s;
+  }
+  .card:hover { transform: scale(1.03); box-shadow: 0 0 35px rgba(255,215,0,0.6); }
+  .card h2 { font-size: 1.1rem; margin-bottom: 15px; color: #ffd700; }
+  .bar-label { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px; color: #c8e6c9; }
+  .bar-bg { background: #1a2e1a; border-radius: 8px; height: 14px; margin-bottom: 10px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 8px; transition: width 1s ease; }
+  .water { background: linear-gradient(90deg, #29b6f6, #0288d1); }
+  .soil { background: linear-gradient(90deg, #8d6e63, #5d4037); }
+  .sun { background: linear-gradient(90deg, #ffd54f, #ff8f00); }
+  .nutrients { background: linear-gradient(90deg, #66bb6a, #2e7d32); }
+  .weather-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #3a5a3a; font-size: 0.95rem; }
+  .weather-row:last-child { border-bottom: none; }
+  .weather-icon { font-size: 1.5rem; }
+  .stat-row { text-align: center; padding: 10px 0; }
+  .stat-num { font-size: 2rem; font-weight: bold; color: #ffd700; }
+  .stat-label { font-size: 0.8rem; color: #a8d5a2; }
+  .tip-btn {
+    background: linear-gradient(135deg, #ffd700, #ff8f00); color: #1a2e1a;
+    border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;
+    font-weight: bold; font-size: 0.95rem; width: 100%; margin-bottom: 12px;
+    transition: opacity 0.2s;
+  }
+  .tip-btn:hover { opacity: 0.85; }
+  .tip-box { background: #1a2e1a; border-radius: 8px; padding: 12px; min-height: 60px; font-size: 0.9rem; color: #c8e6c9; line-height: 1.5; }
+  @media(max-width:600px) { header h1 { font-size: 1.4rem; } .card { width: 90%; } }
+</style>
 </head>
 <body>
-    <h1>Random Fun Facts</h1>
-    <div id="fact">Click the button to generate a fun fact!</div>
-    <button onclick="generateFact()">Get a Fun Fact!</button>
+<header>
+  <h1>🌿 AgroVision Smart Farming Dashboard</h1>
+  <p>Empowering Farmers with AI & Technology</p>
+</header>
 
-    <script>
-        const facts = [
-            "Honey never spoils.",
-            "Bananas are berries but strawberries aren't.",
-            "There are more stars in the universe than grains of sand on Earth.",
-            "A day on Venus is longer than a year on Venus.",
-            "Kangaroos can't walk backwards."
-        ];
+<div class="grid">
 
-        function generateFact() {
-            const randomIndex = Math.floor(Math.random() * facts.length);
-            document.getElementById('fact').innerText = facts[randomIndex];
-        }
-    </script>
+  <!-- Crop Health -->
+  <div class="card">
+    <h2>🌱 Crop Health Monitor</h2>
+    <div class="bar-label"><span>💧 Water</span><span id="wv">0%</span></div>
+    <div class="bar-bg"><div class="bar-fill water" id="wb" style="width:0%"></div></div>
+    <div class="bar-label"><span>🪨 Soil</span><span id="sv">0%</span></div>
+    <div class="bar-bg"><div class="bar-fill soil" id="sb" style="width:0%"></div></div>
+    <div class="bar-label"><span>☀️ Sunlight</span><span id="suv">0%</span></div>
+    <div class="bar-bg"><div class="bar-fill sun" id="sub" style="width:0%"></div></div>
+    <div class="bar-label"><span>🌿 Nutrients</span><span id="nv">0%</span></div>
+    <div class="bar-bg"><div class="bar-fill nutrients" id="nb" style="width:0%"></div></div>
+  </div>
+
+  <!-- Weather -->
+  <div class="card">
+    <h2>⛅ Weather Station</h2>
+    <div class="weather-row"><span class="weather-icon" id="wicon">☀️</span><span id="wdesc">Sunny</span><span id="wtemp">28°C</span></div>
+    <div class="weather-row"><span>💧 Humidity</span><span id="whumid">45%</span></div>
+    <div class="weather-row"><span>💨 Wind</span><span id="wwind">12 km/h</span></div>
+    <div class="weather-row"><span>🌡️ Feels Like</span><span id="wfeel">30°C</span></div>
+  </div>
+
+  <!-- Farm Stats -->
+  <div class="card">
+    <h2>📊 Farm Stats</h2>
+    <div class="stat-row"><div class="stat-num" id="s1">0</div><div class="stat-label">Acres Monitored</div></div>
+    <div class="stat-row"><div class="stat-num" id="s2">0</div><div class="stat-label">Crops Saved</div></div>
+    <div class="stat-row"><div class="stat-num" id="s3">0</div><div class="stat-label">Tons CO₂ Reduced</div></div>
+  </div>
+
+  <!-- AI Crop Doctor -->
+  <div class="card">
+    <h2>🤖 AI Crop Doctor</h2>
+    <button class="tip-btn" onclick="getTip()">🔍 Get Smart Farming Tip</button>
+    <div class="tip-box" id="tipbox">Click the button for an AI-powered farming insight!</div>
+  </div>
+
+</div>
+
+<script>
+const tips = [
+  "🌾 Rotate crops every season to restore soil nutrients and reduce pest buildup naturally.",
+  "💧 Drip irrigation uses 50% less water than flood irrigation — ideal for dry climates.",
+  "🐛 Introduce ladybugs as natural pest control instead of chemical pesticides.",
+  "🌱 Add compost every 3 months to boost soil organic matter and microbial activity.",
+  "☀️ Plant tall crops as windbreaks to protect smaller plants from heat stress.",
+  "📱 Use soil moisture sensors to water only when needed — cuts water waste by 40%.",
+  "🌿 Cover crops like clover fix nitrogen in the soil, reducing fertilizer costs.",
+  "🦋 Plant pollinator strips near fields to attract bees and increase yield by 20%.",
+];
+
+function getTip() {
+  const box = document.getElementById('tipbox');
+  box.style.opacity = 0;
+  setTimeout(() => {
+    box.textContent = tips[Math.floor(Math.random() * tips.length)];
+    box.style.opacity = 1;
+  }, 300);
+  box.style.transition = 'opacity 0.3s';
+}
+
+function updateBars() {
+  const ids = [['wb','wv'],['sb','sv'],['sub','suv'],['nb','nv']];
+  ids.forEach(([bar, val]) => {
+    const pct = Math.floor(Math.random() * 40) + 55;
+    document.getElementById(bar).style.width = pct + '%';
+    document.getElementById(val).textContent = pct + '%';
+  });
+}
+
+const weathers = [
+  {icon:'☀️',desc:'Sunny',temp:'28°C',feel:'30°C'},
+  {icon:'🌧️',desc:'Rainy',temp:'19°C',feel:'17°C'},
+  {icon:'⛅',desc:'Cloudy',temp:'22°C',feel:'21°C'},
+  {icon:'🌩️',desc:'Stormy',temp:'17°C',feel:'15°C'},
+];
+let wi = 0;
+function updateWeather() {
+  const w = weathers[wi % weathers.length]; wi++;
+  document.getElementById('wicon').textContent = w.icon;
+  document.getElementById('wdesc').textContent = w.desc;
+  document.getElementById('wtemp').textContent = w.temp;
+  document.getElementById('wfeel').textContent = w.feel;
+  document.getElementById('whumid').textContent = Math.floor(Math.random()*30+40) + '%';
+  document.getElementById('wwind').textContent = Math.floor(Math.random()*20+5) + ' km/h';
+}
+
+function countUp(id, target, duration) {
+  let start = 0;
+  const step = target / (duration / 30);
+  const t = setInterval(() => {
+    start += step;
+    if (start >= target) { document.getElementById(id).textContent = target.toLocaleString(); clearInterval(t); }
+    else document.getElementById(id).textContent = Math.floor(start).toLocaleString();
+  }, 30);
+}
+
+window.onload = () => {
+  updateBars();
+  updateWeather();
+  countUp('s1', 24750, 2000);
+  countUp('s2', 8320, 2000);
+  countUp('s3', 1540, 2000);
+  setInterval(updateBars, 3000);
+  setInterval(updateWeather, 5000);
+};
+</script>
 </body>
 </html>
